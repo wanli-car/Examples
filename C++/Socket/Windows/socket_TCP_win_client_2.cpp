@@ -14,7 +14,7 @@ int main(){
     sockaddr_in sockAddr;
     memset(&sockAddr, 0, sizeof(sockAddr));  //每个字节都用0填充
     sockAddr.sin_family = PF_INET;
-    sockAddr.sin_addr.s_addr = inet_addr("192.168.31.159");
+    sockAddr.sin_addr.s_addr = inet_addr("192.168.31.158");
     sockAddr.sin_port = htons(1234);
    
     char bufSend[BUF_SIZE] = {0};
