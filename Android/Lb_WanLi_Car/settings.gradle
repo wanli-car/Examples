@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "Lb_WanLi_Car"
