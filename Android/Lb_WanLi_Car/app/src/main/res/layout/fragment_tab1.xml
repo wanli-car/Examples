@@ -118,7 +118,24 @@
             android:id="@+id/switch_Turnmode"
             android:onClick="onClick" />
 
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="转向控制"/>
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/SeekBar_Roll"
+                android:max="200"
+                android:progress="100"
+                android:padding="10dp"/>
+        </LinearLayout>
 
+    </LinearLayout>
 
 </RelativeLayout>

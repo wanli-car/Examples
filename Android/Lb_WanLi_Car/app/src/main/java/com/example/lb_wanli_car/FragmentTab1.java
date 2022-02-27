@@ -28,11 +28,15 @@ public class FragmentTab1 extends Fragment {
     static public SeekBar mSeekBar_Wheel_2;
     static public SeekBar mSeekBar_Wheel_3;
     static public SeekBar mSeekBar_Wheel_4;
+    static public SeekBar mSeekBar_Roll;
 
     static public TextView mEditText_Wheel_1;
     static public TextView mEditText_Wheel_2;
     static public TextView mEditText_Wheel_3;
     static public TextView mEditText_Wheel_4;
+
+
+
 
     static public byte RockerValue[]={1,0,0,0,0,1};
     static public byte MotorValue[]={0,0,0,0,0};
@@ -54,6 +58,8 @@ public class FragmentTab1 extends Fragment {
         mSeekBar_Wheel_2=(SeekBar)view.findViewById(R.id.SeekBar_Wheel_2);
         mSeekBar_Wheel_3=(SeekBar)view.findViewById(R.id.SeekBar_Wheel_3);
         mSeekBar_Wheel_4=(SeekBar)view.findViewById(R.id.SeekBar_Wheel_4);
+        mSeekBar_Roll=(SeekBar)view.findViewById(R.id.SeekBar_Roll);
+
         mEditText_Wheel_1=(EditText)view.findViewById(R.id.EditText_Wheel_1);
         mEditText_Wheel_2=(EditText)view.findViewById(R.id.EditText_Wheel_2);
         mEditText_Wheel_3=(EditText)view.findViewById(R.id.EditText_Wheel_3);
@@ -103,7 +109,17 @@ public class FragmentTab1 extends Fragment {
                 mEditText_Wheel_4.setText(String.valueOf(MotorValue[3]));
             }
         });
-
+        mSeekBar_Roll.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                RockerValue[2]=(byte)(progress-100);
+                mecanumRun(RockerValue[1],RockerValue[0],RockerValue[2] );
+            }
+        });
 
         mSwitch_Turnmode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -130,10 +146,36 @@ public class FragmentTab1 extends Fragment {
             public void report(float x, float y) {
                 RockerValue[0] = (byte) (y / Rocker.getR() * 100);
                 RockerValue[1] = (byte) (x / Rocker.getR() * 100);
-                // System.out.println(RockerValue[0]);
+                mecanumRun(RockerValue[1],RockerValue[0],RockerValue[2] );
             }
         });
         return view;
+    }
+
+    void mecanumRun(float xSpeed, float ySpeed, float aSpeed)
+    {
+        float maxLinearSpeed=100;
+        float speed1 = ySpeed - xSpeed + aSpeed;
+        float speed2 = ySpeed + xSpeed - aSpeed;
+        float speed3 = ySpeed - xSpeed - aSpeed;
+        float speed4 = ySpeed + xSpeed + aSpeed;
+
+        float max = speed1;
+        if (max < speed2)   max = speed2;
+        if (max < speed3)   max = speed3;
+        if (max < speed4)   max = speed4;
+
+        if (max > maxLinearSpeed)
+        {
+            speed1 = speed1 / max * maxLinearSpeed;
+            speed2 = speed2 / max * maxLinearSpeed;
+            speed3 = speed3 / max * maxLinearSpeed;
+            speed4 = speed4 / max * maxLinearSpeed;
+        }
+        mSeekBar_Wheel_1.setProgress((int)(speed1+100));
+        mSeekBar_Wheel_2.setProgress((int)(speed2+100));
+        mSeekBar_Wheel_3.setProgress((int)(speed3+100));
+        mSeekBar_Wheel_4.setProgress((int)(speed4+100));
     }
 }
 
