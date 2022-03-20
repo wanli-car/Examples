@@ -94,32 +94,45 @@ void Data_Process(char * Data){
 	if(Data[0]>128){
 		M1.Motor_out=(256-Data[0])*gen;
 		M1.Direction=2;
-	}else{
-		M1.Motor_out=Data[0];
+	}else if(Data[0]==0){
+		M1.Motor_out=0;
+		M1.Direction=3;		
+	}
+	else{
+		M1.Motor_out=Data[0]*gen;
 		M1.Direction=1;
 	}
 	
 	if(Data[1]>128){
 		M2.Motor_out=(256-Data[1])*gen;
 		M2.Direction=2;
+	}else if(Data[1]==0){
+		M2.Motor_out=0;
+		M2.Direction=3;		
 	}else{
-		M2.Motor_out=Data[1];
+		M2.Motor_out=Data[1]*gen;
 		M2.Direction=1;
 	}
 	
 	if(Data[2]>128){
 		M3.Motor_out=(256-Data[2])*gen;
 		M3.Direction=2;
+	}else if(Data[2]==0){
+		M3.Motor_out=0;
+		M3.Direction=3;		
 	}else{
-		M3.Motor_out=Data[2];
+		M3.Motor_out=Data[2]*gen;
 		M3.Direction=1;
 	}
 
 	if(Data[3]>128){
 		M4.Motor_out=(256-Data[3])*gen;
 		M4.Direction=2;
+	}else if(Data[3]==0){
+		M4.Motor_out=0;
+		M4.Direction=3;		
 	}else{
-		M4.Motor_out=Data[3];
+		M4.Motor_out=Data[3]*gen;
 		M4.Direction=1;
 	}
 }

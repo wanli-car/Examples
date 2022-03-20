@@ -23,6 +23,7 @@ public class FragmentTab1 extends Fragment {
     private RockerView Rocker;
 
     static public Switch mSwitch_Turnmode;
+    static public Switch mSwitch_QuickStartmode;
 
     static public SeekBar mSeekBar_Wheel_1;
     static public SeekBar mSeekBar_Wheel_2;
@@ -40,7 +41,8 @@ public class FragmentTab1 extends Fragment {
 
     static public byte RockerValue[]={1,0,0,0,0,1};
     static public byte MotorValue[]={0,0,0,0,0};
-    static public boolean isTurnmodeSwitch;
+    //static public boolean isTurnmodeSwitch;
+    //static public boolean isQuickStartmodeSwitch;
     private byte temp;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,6 +55,7 @@ public class FragmentTab1 extends Fragment {
         Rocker=  (RockerView)view.findViewById(R.id.rockerView1);
 
         mSwitch_Turnmode=(Switch)view.findViewById(R.id.switch_Turnmode);
+        mSwitch_QuickStartmode=(Switch)view.findViewById(R.id.switch_QuickStartmode);
 
         mSeekBar_Wheel_1=(SeekBar)view.findViewById(R.id.SeekBar_Wheel_1);
         mSeekBar_Wheel_2=(SeekBar)view.findViewById(R.id.SeekBar_Wheel_2);
@@ -111,32 +114,18 @@ public class FragmentTab1 extends Fragment {
         });
         mSeekBar_Roll.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mSeekBar_Roll.setProgress((int)(100));
+            }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 RockerValue[2]=(byte)(progress-100);
-                mecanumRun(RockerValue[1],RockerValue[0],RockerValue[2] );
+                mecanumRun(RockerValue[1],RockerValue[0],-RockerValue[2] );
             }
         });
 
-        mSwitch_Turnmode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                   isTurnmodeSwitch=true;
-                //    oriturnmodeSwitch.setEnabled(true);
-
-
-                }
-                else {
-                  isTurnmodeSwitch=false;
-                   // oriturnmodeSwitch.setEnabled(false);
-
-                }
-            }
-        });
         RelativeLayout.LayoutParams linearParams = (RelativeLayout.LayoutParams) Rocker.getLayoutParams();
         linearParams.width = width;
         linearParams.height = width;
@@ -144,12 +133,50 @@ public class FragmentTab1 extends Fragment {
         Rocker.setRockerChangeListener(new RockerView.RockerChangeListener() {
             @Override
             public void report(float x, float y) {
-                RockerValue[0] = (byte) (y / Rocker.getR() * 100);
-                RockerValue[1] = (byte) (x / Rocker.getR() * 100);
-                mecanumRun(RockerValue[1],RockerValue[0],RockerValue[2] );
+                    RockerValue[0] = (byte) (-y / Rocker.getR() * 70);
+                    RockerValue[1] = (byte) (x / Rocker.getR() * 70);
+                if(mSwitch_Turnmode.isChecked()){
+                    Tuenmode_mecanumRun(RockerValue[0], -RockerValue[1]);
+                }else{
+                    mecanumRun(RockerValue[1],RockerValue[0],RockerValue[2] );
+                }
             }
         });
         return view;
+    }
+
+    void Tuenmode_mecanumRun(float ySpeed, float aSpeed)
+    {
+        float speed1 = ySpeed  + aSpeed;
+        float speed2 = ySpeed  - aSpeed;
+        float speed3 = ySpeed  - aSpeed;
+        float speed4 = ySpeed  + aSpeed;
+        if(mSwitch_QuickStartmode.isChecked()) {
+            if ((int) speed1 > 0) {
+                speed1 = speed1 / 2 + 50;
+            } else if ((int) speed1 < 0) {
+                speed1 = speed1 / 2 - 50;
+            }
+            if ((int) speed2 > 0) {
+                speed2 = speed2 / 2 + 50;
+            } else if ((int) speed2 < 0) {
+                speed2 = speed2 / 2 - 50;
+            }
+            if ((int) speed3 > 0) {
+                speed3 = speed3 / 2 + 50;
+            } else if ((int) speed3 < 0) {
+                speed3 = speed3 / 2 - 50;
+            }
+            if ((int) speed4 > 0) {
+                speed4 = speed4 / 2 + 50;
+            } else if ((int) speed4 < 0) {
+                speed4 = speed4 / 2 - 50;
+            }
+        }
+        mSeekBar_Wheel_1.setProgress((int)(speed1+100));
+        mSeekBar_Wheel_2.setProgress((int)(speed2+100));
+        mSeekBar_Wheel_3.setProgress((int)(speed3+100));
+        mSeekBar_Wheel_4.setProgress((int)(speed4+100));
     }
 
     void mecanumRun(float xSpeed, float ySpeed, float aSpeed)
@@ -159,12 +186,32 @@ public class FragmentTab1 extends Fragment {
         float speed2 = ySpeed + xSpeed - aSpeed;
         float speed3 = ySpeed - xSpeed - aSpeed;
         float speed4 = ySpeed + xSpeed + aSpeed;
-
+        if(mSwitch_QuickStartmode.isChecked()) {
+            if ((int) speed1 > 0) {
+                speed1 = speed1 / 2 + 50;
+            } else if ((int) speed1 < 0) {
+                speed1 = speed1 / 2 - 50;
+            }
+            if ((int) speed2 > 0) {
+                speed2 = speed2 / 2 + 50;
+            } else if ((int) speed2 < 0) {
+                speed2 = speed2 / 2 - 50;
+            }
+            if ((int) speed3 > 0) {
+                speed3 = speed3 / 2 + 50;
+            } else if ((int) speed3 < 0) {
+                speed3 = speed3 / 2 - 50;
+            }
+            if ((int) speed4 > 0) {
+                speed4 = speed4 / 2 + 50;
+            } else if ((int) speed4 < 0) {
+                speed4 = speed4 / 2 - 50;
+            }
+        }
         float max = speed1;
         if (max < speed2)   max = speed2;
         if (max < speed3)   max = speed3;
         if (max < speed4)   max = speed4;
-
         if (max > maxLinearSpeed)
         {
             speed1 = speed1 / max * maxLinearSpeed;

@@ -114,10 +114,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="遥控模式"
+            android:text="转弯模式"
             android:id="@+id/switch_Turnmode"
             android:onClick="onClick" />
-
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="快启动模式"
+            android:id="@+id/switch_QuickStartmode"
+            android:onClick="onClick" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

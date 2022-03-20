@@ -27,8 +27,9 @@ int main () {
 	Motor_Init();
     Encoder_Init();
 	Socket_Init();
-	piThreadCreate (timer) ;
+//	piThreadCreate (timer) ;
 	piThreadCreate (Socket) ;
+
 	while(1) {
 		//delay(1000);
 	}
