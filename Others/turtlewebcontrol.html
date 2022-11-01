@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+<script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+<style type="text/css">
+    #box1{
+        width: 44px;
+        height:44px;
+        position: absolute;
+        background: lightskyblue;
+    }
+</style>
+<script type="text/javascript" type="text/javascript">
+  // Connecting to ROS
+  var ros = new ROSLIB.Ros({
+   url : 'ws://localhost:9090'
+ //url : 'ws://192.168.31.159:9090'
+  });
+   
+  var isconected=false;
+
+  //判断是否连接成功并输出相应的提示消息到web控制台
+  ros.on('connection', function() {
+    isconected=true;
+    console.log('Connected to websocket server.');
+    subscribe();
+  }); 
+
+  ros.on('error', function(error) {
+    isconected=false;
+    console.log('Error connecting to websocket server: ', error);
+  });
+  
+  ros.on('close', function() {
+    isconected=false;
+    console.log('Connection to websocket server closed.');
+    unsubscribe();
+  });
+
+  // Publishing a Topic
+  var cmdVel = new ROSLIB.Topic({
+    ros : ros,
+    name : 'turtle1/cmd_vel',
+    messageType : 'geometry_msgs/Twist'
+  });//创建一个topic,它的名字是'/cmd_vel',,消息类型是'geometry_msgs/Twist' 
+
+  var twist = new ROSLIB.Message({
+    linear : {
+      x : 0.0,
+      y : 0.0,
+      z : 0.0
+    },
+    angular : {
+      x : 0.0,
+      y : 0.0,
+      z : 0.0
+    }
+  });//创建一个message
+    
+  function control_move(direction){
+    twist.linear.x = 0.0;
+    twist.linear.y = 0;
+    twist.linear.z = 0;
+    twist.angular.x = 0;
+    twist.angular.y = 0;
+    twist.angular.z = 0.0;
+    
+    switch(direction){
+      case 'up':
+        twist.linear.x = 2.0;
+        break;
+      case 'down':
+        twist.linear.x = -2.0;
+      break;
+      case 'left':
+        twist.angular.z = 2.0;
+      break;
+      case 'right':
+        twist.angular.z = -2.0;
+      break;
+    }
+    cmdVel.publish(twist);//发布twist消息
+  }
+
+  var timer=null;    
+  function buttonmove(){    
+    var oUp=document.getElementById('up');
+    var oDown=document.getElementById('down');
+    var oLeft=document.getElementById('left');
+    var oRight=document.getElementById('right');
+         
+    oUp.onmousedown=function ()
+    {
+        Move('up');        
+    }
+    oDown.onmousedown=function ()
+    {
+        Move('down');        
+    }
+     
+    oLeft.onmousedown=function ()
+    {
+        Move('left');        
+    }
+     
+    oRight.onmousedown=function ()
+    {
+        Move('right');       
+    }
+
+    oUp.onmouseup=oDown.onmouseup=oLeft.onmouseup=oRight.onmouseup=function ()
+    {
+        MouseUp ();
+    }      
+  }
+
+
+  function keymove (event) {    
+    event = event || window.event;/*||为或语句，当IE不能识别event时候，就执行window.event 赋值*/
+    console.log(event.keyCode);
+    switch (event.keyCode){/*keyCode:字母和数字键的键码值*/          
+        /*65,87,68,83分别对应awds*/
+        case 65:                 
+            Move('left');
+            break;
+        case 87:              
+            Move('up');
+            break;
+        case 68:              
+            Move('right');
+            break;
+        case 83:
+            Move('down');
+            break;
+        default:
+            break;
+    }
+  }
+
+  var MoveTime=20;
+     
+  function Move (f){
+    clearInterval(timer);
+      
+    timer=setInterval(function (){          
+      control_move(f)      
+    },MoveTime);
+  }        
+       
+  function MouseUp ()
+  {
+      clearInterval(timer);        
+  }
+  
+  function KeyUp(event){
+      MouseUp();
+  }
+  window.onload=function ()
+  {  
+        buttonmove();                
+        document.onkeyup=KeyUp;
+        document.onkeydown=keymove;           
+        Movebox();    
+  }
+  
+  // Subscribing to a Topic
+  var listener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/turtle1/pose',
+    messageType : 'turtlesim/Pose'
+  });//创建一个topic,它的名字是'/turtle1/pose',,消息类型是'turtlesim/Pose',用于接收乌龟位置信息
+ 
+  var turtle_x=0.0;
+  var turtle_y=0.0;
+  
+  function subscribe()//在连接成功后，控制div的位置，
+  {
+     listener.subscribe(function(message) {         
+       turtle_x=message.x;
+       turtle_y=message.y;
+       document.getElementById("output").innerHTML = ('Received message on ' + listener.name +'  x: ' + message.x+" ,y: "+message.y);
+     });
+  } 
+
+  function unsubscribe()//在断开连接后，取消订阅
+  {
+     listener.unsubscribe();    
+  }
+    
+  function Movebox ()
+  {    
+    var obox=document.getElementById("box1");    
+    var timer=null;
+    
+    clearInterval(timer);
+         
+    timer=setInterval(function (){
+      if(!isconected)
+      {
+        obox.style.left = '0px';
+        obox.style.top = '0px';        
+      } else {
+        obox.style.left =Math.round(60*turtle_x)-330+"px";
+        console.log(obox.style.left)
+        obox.style.top =330-Math.round(60*turtle_y)+"px";
+        console.log(obox.style.top)
+      }
+    },20);
+ }
+
+</script>
+</head>
+<body>
+
+  <h1>rosbridge Simple example--Move turtle with teleop or button </h1>
+  <p>First,on robot machine,run: roslaunch rosbridge_server rosbridge_websocket.launch</p>
+  <p>second,on robot machine,run: rosrun turtlesim turtlesim_node</p>
+  <p>third,on this webpage control turtle with up,down,left,right key</p>
+  <p>Check your Web Console for output.</p>
+
+  <input type="button" value="前行" id="up">
+  <input type="button" value="后退" id="down">
+  <input type="button" value="左转" id="left">
+  <input type="button" value="右转" id="right">
+
+  <p>@author Joshua   2021-04-23</p>
+  <p id = "output"></p>
+
+  <div id="mbox" style="width:704px;height:704px;border:1px solid red;position: relative;">
+    <div id="box1" style="margin-left:330px;margin-top:330px;position:absolute;" ></div>    
+  </div>
+</body>
+</html>
+
